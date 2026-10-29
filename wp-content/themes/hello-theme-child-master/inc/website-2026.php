@@ -521,6 +521,60 @@ add_filter( 'hx_content_updates', function ( $updates ) {
 } );
 
 /* --------------------------------------------------------------------------
+   Header "Book Now" → Book a Treatment flow (Dev Spec v1, Flow B): straight to
+   the therapies list (/become-a-patient/#book-a-treatment) instead of /booking/.
+   -------------------------------------------------------------------------- */
+
+function hx_cu_header_book_treatment() {
+	$page = function_exists( 'hx_patient_page_url' ) ? hx_patient_page_url() : '';
+	if ( ! $page ) {
+		return false; // page not published yet: retry later
+	}
+	$url     = $page . '#book-a-treatment';
+	$headers = get_posts( [
+		'post_type'   => 'elementor_library',
+		'post_status' => 'any',
+		'numberposts' => -1,
+		'meta_query'  => [ [ 'key' => '_elementor_template_type', 'value' => 'header' ] ], // phpcs:ignore WordPress.DB.SlowDBQuery
+	] );
+	foreach ( $headers as $header ) {
+		$raw  = get_post_meta( $header->ID, '_elementor_data', true );
+		$data = is_string( $raw ) ? json_decode( $raw, true ) : null;
+		if ( ! is_array( $data ) ) {
+			continue;
+		}
+		$changed = false;
+		$walk    = function ( &$nodes ) use ( &$walk, &$changed, $url ) {
+			foreach ( $nodes as &$node ) {
+				if ( 'button' === ( $node['widgetType'] ?? '' ) && isset( $node['settings']['text'] )
+					&& preg_match( '/^\s*(book\s+now|schedule\s+now)\s*$/i', (string) $node['settings']['text'] )
+					&& ( $node['settings']['link']['url'] ?? '' ) !== $url ) {
+					$node['settings']['link']['url'] = $url;
+					$changed                         = true;
+				}
+				if ( ! empty( $node['elements'] ) && is_array( $node['elements'] ) ) {
+					$walk( $node['elements'] );
+				}
+			}
+		};
+		$walk( $data );
+		if ( $changed ) {
+			update_post_meta( $header->ID, '_elementor_data', wp_slash( wp_json_encode( $data ) ) );
+			delete_post_meta( $header->ID, '_elementor_css' );
+			delete_post_meta( $header->ID, '_elementor_element_cache' );
+		}
+	}
+	hx_cu_flush_elementor();
+	return true;
+}
+add_filter( 'hx_content_updates', function ( $updates ) {
+	if ( hx_nav_2026_on() ) {
+		$updates['nav:book-a-treatment'] = 'hx_cu_header_book_treatment';
+	}
+	return $updates;
+} );
+
+/* --------------------------------------------------------------------------
    Booking directory (/booking/): new filters (booking/filters-2026.php).
    Rewrites the filter strip and each card's data-category in the page's
    HTML widget; adds the clearance label to IV / EBOO cards. Links, calendars
