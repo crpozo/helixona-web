@@ -1,0 +1,267 @@
+/* ==========================================================================
+   Helixona – navigation polish (loaded site-wide)
+   1) Mobile drawer: the Elementor off-canvas is rebuilt by hx-menu.js into a
+      one-level accordion on black with gold accents.
+   2) Desktop dropdowns: brand colours, readable sizes.
+   ========================================================================== */
+
+/* ---------- Mobile / tablet drawer ---------- */
+.e-off-canvas.hx-mnav-ready,
+.e-off-canvas.hx-mnav-ready .e-off-canvas__main,
+.e-off-canvas.hx-mnav-ready .e-off-canvas__content,
+.e-off-canvas.hx-mnav-ready .hx-mnav {
+	--e-off-canvas-width: 100vw;
+	--e-off-canvas-content-width: 100%;
+	width: 100vw !important;
+	min-width: 100vw !important;
+	max-width: 100vw !important;
+	inset-inline-start: 0 !important;
+	inset-inline-end: auto !important;
+	left: 0 !important;
+	right: auto !important;
+	margin: 0 !important;
+	box-sizing: border-box;
+}
+.e-off-canvas.hx-mnav-ready .e-off-canvas__main {
+	background: #000 !important;
+	color: #fff;
+	overflow-y: auto;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior: contain;
+}
+.e-off-canvas.hx-mnav-ready .e-off-canvas__content { padding: 0 !important; background: #000 !important; min-height: 100%; }
+.e-off-canvas.hx-mnav-ready .e-off-canvas__overlay { display: none !important; }
+.e-off-canvas.hx-mnav-ready .e-off-canvas__content > *:not(.hx-mnav) { display: none !important; }
+
+.e-off-canvas .hx-mnav {
+	--g: #d6b981;
+	--gl: #f1d6a0;
+	--line: rgba(214,185,129,0.22);
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+	padding: 0 0 max(28px, env(safe-area-inset-bottom));
+	font-family: "Open Sans", "Manrope", system-ui, sans-serif;
+	-webkit-font-smoothing: antialiased;
+}
+.e-off-canvas .hx-mnav__bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 18px 16px 18px 20px;
+	border-bottom: 1px solid var(--line);
+}
+.e-off-canvas .hx-mnav__logo img { display: block; height: 30px; width: auto; }
+.e-off-canvas .hx-mnav__logo { color: var(--g); letter-spacing: .5em; text-decoration: none; font-size: 14px; }
+.e-off-canvas .hx-mnav__close {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: var(--g);
+	cursor: pointer;
+}
+.e-off-canvas .hx-mnav__close svg { width: 26px; height: 26px; }
+
+.e-off-canvas .hx-mnav__ctas {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+	padding: 18px 20px 8px;
+}
+@media (max-width: 400px) {
+	.e-off-canvas .hx-mnav__ctas { grid-template-columns: 1fr; }
+}
+.e-off-canvas .hx-mnav__cta {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 46px;
+	padding: 10px 12px;
+	border: 1px solid var(--g);
+	font-family: Roboto, "Open Sans", sans-serif;
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: .16em;
+	text-transform: uppercase;
+	text-align: center;
+	text-decoration: none !important;
+	line-height: 1.3;
+	color: var(--gl);
+}
+.e-off-canvas .hx-mnav__cta--gold { background: var(--g); color: #000; }
+
+.e-off-canvas .hx-mnav__sections { padding: 10px 0 0; }
+.e-off-canvas .hx-mnav__sec { border-bottom: 1px solid var(--line); }
+.e-off-canvas .hx-mnav__toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	width: 100%;
+	min-height: 60px;
+	margin: 0;
+	padding: 14px 16px 14px 20px;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: #fff;
+	font-family: "TT Ramillas Trial Regular", "Playfair Display", Georgia, serif;
+	font-size: 22px;
+	font-weight: 400;
+	letter-spacing: 0;
+	text-transform: none;
+	text-align: left;
+	text-decoration: none !important;
+	line-height: 1.2;
+	cursor: pointer;
+}
+.e-off-canvas .hx-mnav__toggle[aria-expanded="true"] { color: var(--gl); }
+.e-off-canvas .hx-mnav__chev { flex: 0 0 auto; width: 22px; height: 22px; color: var(--g); transition: transform .25s ease; }
+.e-off-canvas .hx-mnav__toggle[aria-expanded="true"] .hx-mnav__chev { transform: rotate(180deg); }
+
+.e-off-canvas .hx-mnav__panel { padding: 0 20px 14px; }
+.e-off-canvas .hx-mnav__panel[hidden] { display: none; }
+.e-off-canvas .hx-mnav__list,
+.e-off-canvas .hx-mnav__list ul { list-style: none; margin: 0; padding: 0; }
+.e-off-canvas .hx-mnav__link {
+	display: block;
+	padding: 11px 0;
+	color: rgba(255,255,255,0.82);
+	font-size: 16px;
+	line-height: 1.4;
+	text-decoration: none !important;
+	border-radius: 0;
+}
+.e-off-canvas .hx-mnav__link:active,
+.e-off-canvas .hx-mnav__link.is-current { color: var(--gl); }
+.e-off-canvas .hx-mnav__link.is-current { padding-left: 12px; border-left: 1px solid var(--g); }
+
+.e-off-canvas .hx-mnav__group { padding: 10px 0 4px; }
+.e-off-canvas .hx-mnav__group + .hx-mnav__group { border-top: 1px solid rgba(255, 255, 255, 0.06); }
+.e-off-canvas .hx-mnav__group-label {
+	display: block;
+	margin: 0 0 2px;
+	font-family: Roboto, "Open Sans", sans-serif;
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: .3em;
+	text-transform: uppercase;
+	color: var(--g);
+	text-decoration: none !important;
+}
+.e-off-canvas .hx-mnav__group .hx-mnav__link { padding-left: 14px; }
+
+/* ---------- Mobile header: hamburger on the right ---------- */
+@media (max-width: 1024px) {
+	.elementor-location-header .elementor-widget-icon a[href*="off_canvas%3Aopen"],
+	.elementor-location-header .elementor-widget-icon a[href*="off_canvas:open"] { display: inline-flex; }
+	.elementor-location-header .elementor-widget-icon:has(a[href*="off_canvas"]) {
+		left: auto !important;
+		right: 20px !important;
+		inset-inline-start: auto !important;
+		inset-inline-end: 20px !important;
+	}
+}
+
+/* ---------- Desktop header, Website 2026 menu (body.hx-nav-2026) ----------
+   Three menu items, so logo, menu and both buttons share one line again:
+   logo left (fixed width), menu right-aligned, buttons at the end. Tighter
+   spacing on laptop widths. The desktop header shows above Elementor's
+   1200px breakpoint. */
+@media (min-width: 1201px) {
+	body.hx-nav-2026 .elementor-location-header .e-con-inner:has(> .e-con > .e-con > .elementor-widget-nav-menu) {
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		align-items: center !important;
+		column-gap: 32px !important;
+	}
+	body.hx-nav-2026 .elementor-location-header .e-con-inner:has(> .e-con > .e-con > .elementor-widget-nav-menu) > .e-con:not(:has(.elementor-widget-nav-menu)) {
+		flex: 0 0 250px !important;
+		width: 250px !important;
+	}
+	body.hx-nav-2026 .elementor-location-header .e-con-inner > .e-con:has(> .e-con > .elementor-widget-nav-menu) {
+		flex: 1 1 0 !important;
+		width: auto !important;
+		min-width: 0;
+	}
+	/* Menu column + buttons column side by side */
+	body.hx-nav-2026 .elementor-location-header .e-con:has(> .e-con > .elementor-widget-nav-menu):has(> .e-con .elementor-widget-button) {
+		flex-wrap: nowrap !important;
+		align-items: center !important;
+		column-gap: 28px !important;
+	}
+	body.hx-nav-2026 .elementor-location-header .e-con:has(> .e-con > .elementor-widget-nav-menu) > .e-con:has(.elementor-widget-button):not(:has(.elementor-widget-nav-menu)) {
+		order: 2;
+		flex: 0 0 auto !important;
+		width: auto !important;
+		padding: 0 !important;
+	}
+	body.hx-nav-2026 .elementor-location-header .e-con:has(> .elementor-widget-nav-menu) {
+		flex: 1 1 auto !important;
+		width: auto !important;
+		min-width: 0;
+	}
+	body.hx-nav-2026 .elementor-location-header .e-con > .elementor-widget-nav-menu { width: 100% !important; }
+	body.hx-nav-2026 .elementor-location-header .elementor-nav-menu--main > .elementor-nav-menu {
+		flex-wrap: nowrap !important;
+		justify-content: flex-end !important;
+		margin-left: auto !important;
+	}
+	body.hx-nav-2026 .elementor-location-header .elementor-nav-menu--main > .elementor-nav-menu > li > a {
+		padding: 10px 10px !important;
+		letter-spacing: 1.5px !important;
+		white-space: nowrap;
+	}
+	body.hx-nav-2026 .elementor-location-header .elementor-nav-menu--main > .elementor-nav-menu > li:last-child > a { padding-right: 0 !important; }
+}
+@media (min-width: 1201px) and (max-width: 1439px) {
+	body.hx-nav-2026 .elementor-location-header .elementor-nav-menu--main > .elementor-nav-menu > li > a {
+		padding: 10px 8px !important;
+		font-size: 12px !important;
+		letter-spacing: 1px !important;
+	}
+}
+@media (min-width: 1201px) and (max-width: 1365px) {
+	body.hx-nav-2026 .elementor-location-header .e-con-inner:has(> .e-con > .e-con > .elementor-widget-nav-menu) { column-gap: 24px !important; }
+	body.hx-nav-2026 .elementor-location-header .e-con-inner:has(> .e-con > .e-con > .elementor-widget-nav-menu) > .e-con:not(:has(.elementor-widget-nav-menu)) {
+		flex: 0 0 210px !important;
+		width: 210px !important;
+	}
+	body.hx-nav-2026 .elementor-location-header .e-con:has(> .e-con > .elementor-widget-nav-menu):has(> .e-con .elementor-widget-button) { column-gap: 16px !important; }
+	body.hx-nav-2026 .elementor-location-header .e-con:has(> .e-con > .elementor-widget-nav-menu) > .e-con:has(.elementor-widget-button):not(:has(.elementor-widget-nav-menu)) { gap: 12px !important; --gap: 12px !important; }
+}
+
+/* ---------- Desktop dropdowns ---------- */
+@media (min-width: 1025px) {
+	.elementor-location-header .elementor-nav-menu--main .elementor-nav-menu--dropdown {
+		min-width: 260px;
+		padding: 8px 0;
+		background: #000;
+		border: 1px solid rgba(214,185,129,0.35);
+		box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+	}
+	.elementor-location-header .elementor-nav-menu--main .elementor-nav-menu--dropdown a {
+		padding: 12px 22px;
+		color: rgba(255,255,255,0.85);
+		font-size: 12px;
+		letter-spacing: .18em;
+		line-height: 1.3;
+		background: transparent;
+	}
+	.elementor-location-header .elementor-nav-menu--main .elementor-nav-menu--dropdown a:hover,
+	.elementor-location-header .elementor-nav-menu--main .elementor-nav-menu--dropdown a.highlighted,
+	.elementor-location-header .elementor-nav-menu--main .elementor-nav-menu--dropdown a.elementor-item-active {
+		color: #d6b981;
+		background: rgba(214,185,129,0.08);
+	}
+	.elementor-location-header .elementor-nav-menu--main .elementor-nav-menu--dropdown .sub-arrow { color: #d6b981; }
+	.elementor-location-header .elementor-nav-menu--main .elementor-nav-menu--dropdown li { border-bottom: 0; }
+}

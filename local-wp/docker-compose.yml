@@ -1,0 +1,46 @@
+# WordPress local para probar el child theme de Helixona.
+#   Levantar:  docker compose up -d      ->  http://localhost:8080  (admin / admin)
+#   Apagar:    docker compose down       (agrega -v para borrar la base de datos)
+services:
+  db:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpress
+      MARIADB_ROOT_PASSWORD: root
+    volumes:
+      - db:/var/lib/mysql
+
+  wordpress:
+    image: wordpress:6.8-php8.3-apache
+    depends_on: [db]
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DEBUG: "1"
+    volumes:
+      - wp:/var/www/html
+      - ../wp-content/themes/hello-theme-child-master:/var/www/html/wp-content/themes/hello-theme-child-master
+
+  cli:
+    image: wordpress:cli-php8.3
+    profiles: [cli]
+    user: "33:33"
+    depends_on: [db, wordpress]
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+    volumes:
+      - wp:/var/www/html
+      - ../wp-content/themes/hello-theme-child-master:/var/www/html/wp-content/themes/hello-theme-child-master
+
+volumes:
+  db:
+  wp:
