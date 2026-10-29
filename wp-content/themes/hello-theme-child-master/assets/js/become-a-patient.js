@@ -396,6 +396,12 @@
 		show('payCard', s.payment === 'card_hold');
 		show('toTherapies', s.hoInterest === 'therapies');
 		show('assist', s.assist);
+		show('booked', !s.assist);
+		// No time picked yet ("Ask Our Team"): nothing is charged until staff confirm the slot.
+		bind('bookEyebrow', s.assist ? 'Request received' : 'Booking confirmed');
+		bind('bookTitle', s.assist ? 'Thank you' : "You're booked");
+		bind('paidLabel', s.assist ? 'Due when your time is confirmed' : 'Paid');
+		bind('dueLabel', s.assist ? 'Due when your time is confirmed' : 'Total due today');
 
 		// Screen content
 		if (s.step === 'h1') { renderCatalog(); }
@@ -549,11 +555,18 @@
 		render(true);
 	});
 
-	/* Deep links: #chronic, #health-optimization, #book-a-treatment (Flow B: straight to therapies) */
-	var hash = (window.location.hash || '').replace('#', '');
-	if (hash === 'chronic' || hash === 'chronic-complex') { s.path = 'chronic'; s.step = 'a1'; }
-	if (hash === 'health-optimization') { s.path = 'optimize'; s.tab = 'experience'; s.step = 'h1'; }
-	if (hash === 'book-a-treatment' || hash === 'book') { s.entry = 'book'; s.tab = 'individual'; s.step = 'h1'; }
+	/* Deep links: #chronic, #health-optimization, #book-a-treatment (Flow B: straight to therapies).
+	   Also on hashchange, so a header link to #book-a-treatment works while already on the page. */
+	function fromHash() {
+		var hash = (window.location.hash || '').replace('#', '');
+		var entry = { 'chronic': ['patient', 'chronic', null, 'a1'], 'chronic-complex': ['patient', 'chronic', null, 'a1'], 'health-optimization': ['patient', 'optimize', 'experience', 'h1'], 'book-a-treatment': ['book', null, 'individual', 'h1'], 'book': ['book', null, 'individual', 'h1'] }[hash];
+		if (!entry) { return false; }
+		s.entry = entry[0]; s.path = entry[1]; s.tab = entry[2]; s.step = entry[3];
+		s.ho = 'direct'; s.done = null; s.item = null; s.slot = null; s.assist = false; s.query = '';
+		return true;
+	}
+	fromHash();
+	window.addEventListener('hashchange', function () { if (fromHash()) { render(true); } });
 
 	render();
 })();

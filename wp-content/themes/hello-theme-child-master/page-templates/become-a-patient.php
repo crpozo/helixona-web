@@ -422,8 +422,8 @@ get_header();
 					$hx_row( 'Appointment', 'slotLabel' );
 					$hx_row( 'Patient', 'fullName' );
 					$hx_row( 'Card', 'cardLabel' );
-					$hx_row( 'Total due today', 'itemPrice', 'hxp-serif hxp-row__total' );
 					?>
+					<div class="hxp-row"><span class="hxp-row__label" data-hxp-bind="dueLabel">Total due today</span><span class="hxp-row__value hxp-serif hxp-row__total" data-hxp-bind="itemPrice"></span></div>
 				</div>
 				<div class="hxp-policy">
 					<span class="hxp-label">Cancellation and no-show policy</span>
@@ -545,15 +545,16 @@ get_header();
 
 			<!-- ===== Booking confirmed ===== -->
 			<div class="hxp-step hxp-step--done hxp-step--tight" data-hxp-done="booking" hidden>
-				<span class="hxp-eyebrow">Booking confirmed</span>
-				<h2 class="hxp-serif hxp-h2">You're booked, <span data-hxp-bind="first"></span>.</h2>
-				<p class="hxp-lead hxp-measure">A confirmation with your appointment details, preparation instructions and a secure link to manage your booking has been sent to <span data-hxp-bind="email"></span> and by text message.</p>
+				<span class="hxp-eyebrow" data-hxp-bind="bookEyebrow">Booking confirmed</span>
+				<h2 class="hxp-serif hxp-h2"><span data-hxp-bind="bookTitle">You're booked</span>, <span data-hxp-bind="first"></span>.</h2>
+				<p class="hxp-lead hxp-measure" data-hxp-show="booked">A confirmation with your appointment details, preparation instructions and a secure link to manage your booking has been sent to <span data-hxp-bind="email"></span> and by text message.</p>
+				<p class="hxp-lead hxp-measure" data-hxp-show="assist" hidden>Our team will contact you to confirm a time. Your card is on file and is not charged until your appointment is confirmed.</p>
 				<div class="hxp-rows hxp-rows--narrow">
 					<?php
 					$hx_row( 'Selection', 'itemName' );
 					$hx_row( 'Appointment', 'slotLabel' );
-					$hx_row( 'Paid', 'itemPrice' );
 					?>
+					<div class="hxp-row"><span class="hxp-row__label" data-hxp-bind="paidLabel">Paid</span><span class="hxp-row__value" data-hxp-bind="itemPrice"></span></div>
 					<div class="hxp-row"><span class="hxp-row__label">Location</span><span class="hxp-row__value">114 Pacifica, Suite 130, Irvine, CA 92618</span></div>
 					<div class="hxp-row"><span class="hxp-row__label">Booking reference</span><span class="hxp-row__value" data-hxp-bind="reference">[REFERENCE]</span></div>
 				</div>
