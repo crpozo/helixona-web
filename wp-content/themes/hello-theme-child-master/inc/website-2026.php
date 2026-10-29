@@ -293,43 +293,18 @@ function hx_cu_nav_2026() {
 	set_theme_mod( 'nav_menu_locations', $locations );
 
 	// Elementor header template(s): nav-menu widgets → new menu, "Schedule now" → "Book Now".
-	$headers = get_posts( [
-		'post_type'   => 'elementor_library',
-		'post_status' => 'any',
-		'numberposts' => -1,
-		'meta_query'  => [ [ 'key' => '_elementor_template_type', 'value' => 'header' ] ], // phpcs:ignore WordPress.DB.SlowDBQuery
-	] );
-	foreach ( $headers as $header ) {
-		$raw  = get_post_meta( $header->ID, '_elementor_data', true );
-		$data = is_string( $raw ) ? json_decode( $raw, true ) : null;
-		if ( ! is_array( $data ) ) {
-			continue;
+	return hx_cu_edit_header_nodes( function ( &$node ) use ( $menu ) {
+		$type = $node['widgetType'] ?? '';
+		if ( 'nav-menu' === $type && ( $node['settings']['menu'] ?? '' ) !== $menu->slug ) {
+			$node['settings']['menu'] = $menu->slug;
+			return true;
 		}
-		$changed = false;
-		$walk    = function ( &$nodes ) use ( &$walk, &$changed, $menu ) {
-			foreach ( $nodes as &$node ) {
-				$type = $node['widgetType'] ?? '';
-				if ( 'nav-menu' === $type && ( $node['settings']['menu'] ?? '' ) !== $menu->slug ) {
-					$node['settings']['menu'] = $menu->slug;
-					$changed                  = true;
-				} elseif ( 'button' === $type && isset( $node['settings']['text'] ) && preg_match( '/^\s*schedule\s+now\s*$/i', (string) $node['settings']['text'] ) ) {
-					$node['settings']['text'] = 'Book Now';
-					$changed                  = true;
-				}
-				if ( ! empty( $node['elements'] ) && is_array( $node['elements'] ) ) {
-					$walk( $node['elements'] );
-				}
-			}
-		};
-		$walk( $data );
-		if ( $changed ) {
-			update_post_meta( $header->ID, '_elementor_data', wp_slash( wp_json_encode( $data ) ) );
-			delete_post_meta( $header->ID, '_elementor_css' );
-			delete_post_meta( $header->ID, '_elementor_element_cache' );
+		if ( 'button' === $type && isset( $node['settings']['text'] ) && preg_match( '/^\s*schedule\s+now\s*$/i', (string) $node['settings']['text'] ) ) {
+			$node['settings']['text'] = 'Book Now';
+			return true;
 		}
-	}
-	hx_cu_flush_elementor();
-	return true;
+		return false;
+	} );
 }
 add_filter( 'hx_content_updates', function ( $updates ) {
 	if ( hx_nav_2026_on() ) {
@@ -477,7 +452,11 @@ add_filter( 'hx_content_updates', function ( $updates ) {
    "Become a Client" while desktop said "Become a Patient" (the sitemap's term).
    -------------------------------------------------------------------------- */
 
-function hx_cu_header_become_patient() {
+/**
+ * Edit every widget of the Elementor header template(s): $edit( &$node ) changes a node and
+ * returns true if it changed it. Saves only the headers that changed, then flushes Elementor.
+ */
+function hx_cu_edit_header_nodes( callable $edit ) {
 	$headers = get_posts( [
 		'post_type'   => 'elementor_library',
 		'post_status' => 'any',
@@ -491,12 +470,10 @@ function hx_cu_header_become_patient() {
 			continue;
 		}
 		$changed = false;
-		$walk    = function ( &$nodes ) use ( &$walk, &$changed ) {
+		$walk    = function ( &$nodes ) use ( &$walk, &$changed, $edit ) {
 			foreach ( $nodes as &$node ) {
-				if ( 'button' === ( $node['widgetType'] ?? '' ) && isset( $node['settings']['text'] )
-					&& preg_match( '/^\s*become\s+a\s+client\s*$/i', (string) $node['settings']['text'] ) ) {
-					$node['settings']['text'] = 'Become a Patient';
-					$changed                  = true;
+				if ( $edit( $node ) ) {
+					$changed = true;
 				}
 				if ( ! empty( $node['elements'] ) && is_array( $node['elements'] ) ) {
 					$walk( $node['elements'] );
@@ -512,6 +489,21 @@ function hx_cu_header_become_patient() {
 	}
 	hx_cu_flush_elementor();
 	return true;
+}
+
+/** Header button widgets whose label matches $label (regex); $edit( &$settings ) as above. */
+function hx_cu_edit_header_buttons( $label, callable $edit ) {
+	return hx_cu_edit_header_nodes( function ( &$node ) use ( $label, $edit ) {
+		return 'button' === ( $node['widgetType'] ?? '' ) && isset( $node['settings']['text'] )
+			&& preg_match( $label, (string) $node['settings']['text'] ) && $edit( $node['settings'] );
+	} );
+}
+
+function hx_cu_header_become_patient() {
+	return hx_cu_edit_header_buttons( '/^\s*become\s+a\s+client\s*$/i', function ( &$settings ) {
+		$settings['text'] = 'Become a Patient';
+		return true;
+	} );
 }
 add_filter( 'hx_content_updates', function ( $updates ) {
 	if ( hx_nav_2026_on() ) {
@@ -530,42 +522,14 @@ function hx_cu_header_book_treatment() {
 	if ( ! $page ) {
 		return false; // page not published yet: retry later
 	}
-	$url     = $page . '#book-a-treatment';
-	$headers = get_posts( [
-		'post_type'   => 'elementor_library',
-		'post_status' => 'any',
-		'numberposts' => -1,
-		'meta_query'  => [ [ 'key' => '_elementor_template_type', 'value' => 'header' ] ], // phpcs:ignore WordPress.DB.SlowDBQuery
-	] );
-	foreach ( $headers as $header ) {
-		$raw  = get_post_meta( $header->ID, '_elementor_data', true );
-		$data = is_string( $raw ) ? json_decode( $raw, true ) : null;
-		if ( ! is_array( $data ) ) {
-			continue;
+	$url = $page . '#book-a-treatment';
+	return hx_cu_edit_header_buttons( '/^\s*(book\s+now|schedule\s+now)\s*$/i', function ( &$settings ) use ( $url ) {
+		if ( ( $settings['link']['url'] ?? '' ) === $url ) {
+			return false;
 		}
-		$changed = false;
-		$walk    = function ( &$nodes ) use ( &$walk, &$changed, $url ) {
-			foreach ( $nodes as &$node ) {
-				if ( 'button' === ( $node['widgetType'] ?? '' ) && isset( $node['settings']['text'] )
-					&& preg_match( '/^\s*(book\s+now|schedule\s+now)\s*$/i', (string) $node['settings']['text'] )
-					&& ( $node['settings']['link']['url'] ?? '' ) !== $url ) {
-					$node['settings']['link']['url'] = $url;
-					$changed                         = true;
-				}
-				if ( ! empty( $node['elements'] ) && is_array( $node['elements'] ) ) {
-					$walk( $node['elements'] );
-				}
-			}
-		};
-		$walk( $data );
-		if ( $changed ) {
-			update_post_meta( $header->ID, '_elementor_data', wp_slash( wp_json_encode( $data ) ) );
-			delete_post_meta( $header->ID, '_elementor_css' );
-			delete_post_meta( $header->ID, '_elementor_element_cache' );
-		}
-	}
-	hx_cu_flush_elementor();
-	return true;
+		$settings['link']['url'] = $url;
+		return true;
+	} );
 }
 add_filter( 'hx_content_updates', function ( $updates ) {
 	if ( hx_nav_2026_on() ) {
